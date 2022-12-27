@@ -1,45 +1,30 @@
 package jm.task.core.jdbc.util;
 
-import jm.task.core.jdbc.model.User;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
-
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class Util {
-    public static final String URL = "jdbc:mysql://localhost:3306/jdbc_hibernate";
-    public static final String USER = "bestuser";
-    public static final String PASSWORD = "bestuser";
-    static Connection connection;
+    private static final String URL = "jdbc:mysql://localhost:3306/jdbc_hibernate";
+    private static final String USER = "bestuser";
+    private static final String PASSWORD = "bestuser";
+    private static Connection connection;
 
-    public static Connection openConnection() {
-
-        Driver driver;
-
+    public static Connection getConnection() {
         try {
-            driver = new com.mysql.cj.jdbc.Driver();
-            DriverManager.registerDriver(driver);
-        } catch (SQLException e1) {
-            System.out.println("Драйвер не зарегистрировался");
-            e1.printStackTrace();
-        }
+            if (connection != null && !connection.isClosed())  {
+                return connection;
+            } else {
+                Driver driver;
+                driver = new com.mysql.cj.jdbc.Driver();
+                DriverManager.registerDriver(driver);
+                connection = DriverManager.getConnection(URL, USER, PASSWORD);
 
-        try {
-            connection = DriverManager.getConnection(URL, USER, PASSWORD);
-        } catch (SQLException ex) {
-            System.err.println("Соединение не установлено");
-            ex.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return connection;
     }
-
-    public static Session getCurrentSessionFromConfig() {
-        Configuration config = new Configuration().addAnnotatedClass(User.class).configure("hibernate.cfg.xml");
-        return config.buildSessionFactory().getCurrentSession();
-    }
-
 }
