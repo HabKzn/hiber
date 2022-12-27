@@ -11,46 +11,33 @@ public class UserDaoJDBCImpl implements UserDao {
     public UserDaoJDBCImpl() {
     }
 
-    static Connection connection;
-    static Statement statement;
+    private static Statement statement;
 
     public void createUsersTable() {
-        connection = Util.openConnection();
-        try {
+
+        try (Connection connection = Util.getConnection()) {
             statement = connection.createStatement();
             statement.execute("CREATE TABLE IF NOT EXISTS USERS(" +
                     "Id BIGINT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(20), lastname varchar(30), age SMALLINT) ");
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public void dropUsersTable() {
-        connection = Util.openConnection();
-        try {
+
+        try (Connection connection = Util.getConnection()) {
             statement = connection.createStatement();
             statement.execute("DROP TABLE IF EXISTS USERS");
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public void saveUser(String userName, String userLastName, byte age) {
-        connection = Util.openConnection();
+
         PreparedStatement preparedStatement = null;
-        try {
+        try (Connection connection = Util.getConnection()) {
             preparedStatement = connection.prepareStatement("INSERT INTO USERS(name, lastname, age) VALUES(?, ?, ?)");
             preparedStatement.setString(1, userName);
             preparedStatement.setString(2, userLastName);
@@ -58,36 +45,24 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public void removeUserById(long userId) {
-        connection = Util.openConnection();
 
-        try {
+
+        try (Connection connection = Util.getConnection()) {
             statement = connection.createStatement();
             statement.execute(String.format("DELETE FROM USERS WHERE id = %d;", userId));
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public List<User> getAllUsers() {
-        connection = Util.openConnection();
+
         List<User> userList = new ArrayList<>();
-        try {
+        try (Connection connection = Util.getConnection()) {
             statement = connection.createStatement();
             ResultSet rs = statement.executeQuery("SELECT * FROM users");
             while (rs.next()) {
@@ -95,29 +70,17 @@ public class UserDaoJDBCImpl implements UserDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         return userList;
     }
 
     public void cleanUsersTable() {
-        connection = Util.openConnection();
-        try {
+
+        try (Connection connection = Util.getConnection()) {
             statement = connection.createStatement();
             statement.execute("TRUNCATE TABLE users");
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
