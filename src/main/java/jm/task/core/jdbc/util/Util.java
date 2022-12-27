@@ -1,5 +1,9 @@
 package jm.task.core.jdbc.util;
 
+import jm.task.core.jdbc.model.User;
+import org.hibernate.Session;
+import org.hibernate.cfg.Configuration;
+
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -10,6 +14,7 @@ public class Util {
     private static final String USER = "bestuser";
     private static final String PASSWORD = "bestuser";
     private static Connection connection;
+
 
     public static Connection getConnection() {
         try {
@@ -26,5 +31,10 @@ public class Util {
             e.printStackTrace();
         }
         return connection;
+    }
+
+    public static Session getSession() {
+        Configuration config = new Configuration().addAnnotatedClass(User.class).configure("hibernate.cfg.xml");
+        return config.buildSessionFactory().getCurrentSession();
     }
 }
